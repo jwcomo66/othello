@@ -1,3 +1,3 @@
-Caltech CS2 Assignment 9: Othello
-
-See [assignment9_part1.html](http://htmlpreview.github.io/?https://github.com/caltechcs2/othello/blob/master/assignment9_part1.html) and [assignment9_part2.html](http://htmlpreview.github.io/?https://github.com/caltechcs2/othello/blob/master/assignment9_part2.html)
+# othello
+Rohan and Joe othello bot. Her name is Cardi B because she makes money moves. 
+>>>>>>> 83b4b21d3484884416b477e29dc428753f7335ed
