@@ -1,6 +1,8 @@
 #include "player.hpp"
 
 // joe has made a small change!
+
+//Rohan also made a small change ! ! ! ! ! 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
