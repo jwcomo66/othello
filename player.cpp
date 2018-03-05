@@ -1,5 +1,5 @@
 #include "player.hpp"
-
+#include <vector>
 // joe has made a small change!
 
 //Rohan also made a small change ! ! ! ! ! 
@@ -8,9 +8,60 @@
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
  * within 30 seconds.
  */
+ 
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
+    b = new Board();
+    color = side;
+    w = new int*[8];
+    for (int i = 0; i < 8; i++) {
+		w[i] = new int[8];
+	}
+    // top left quadrant
+    
+    w[0][0] = 120;
+    w[0][1] = -20;
+    w[0][2] = 20;
+    w[0][3] = 5;
+    w[1][0] = -20;
+    w[1][1] = -40;
+    w[1][2] = -5;
+    w[1][3] = -5;
+    w[2][0] = 20;
+    w[2][1]= -5;
+    w[2][2] = 15;
+    w[2][3] = 3;
+    w[3][0] = 5;
+    w[3][1] = -5;
+    w[3][2] = 3;
+    w[3][3] = 3;
+    
+    //fill upper right quadrand mirroring upper left quad
+    for (int i = 0; i < 4; i++)
+    {
+		for (int j = 4; j < 8; j++)
+		{
+			w[i][j] = w[i][7 - j];
+		}
+	}
+	// fill lower left quadrant 
+	for (int i = 4; i < 8; i++)
+    {
+		for (int j = 0; j < 4; j++)
+		{
+			w[i][j] = w[7 - i][j];
+		}
+	}
+	// fill lower right quadrant
+	for (int i = 4; i < 8; i++)
+    {
+		for (int j = 4; j < 8; j++)
+		{
+			w[i][j] = w[7 - i][7 - j];
+		}
+	}
+    
     
 
     /*
@@ -44,5 +95,59 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
-    return nullptr;
+     
+       //fprintf(stderr, "Doing move.\n");
+       
+       
+       Side other = (color == BLACK) ? WHITE : BLACK; 
+       if (opponentsMove != nullptr) {
+		   b->doMove(opponentsMove, other);
+	   } 
+       
+       std::vector<Move*> moves;
+       std::vector<int> weights;
+
+		for (int i = 0; i < 8; i++) 
+		{
+			for (int j = 0; j < 8; j++) 
+			   {
+				
+				Move * moneyMove = new Move(i, j);
+                
+                if (b->checkMove(moneyMove, color))
+                { 
+				  moves.push_back(moneyMove);
+				  weights.push_back(w[i][j]);
+                  //fprintf(stderr, "Added move \n");
+			     }
+			    else
+			     {
+					 delete moneyMove;
+				  }
+	  
+			   }
+		 }
+		 
+		 
+		 //fprintf(stderr, "%d\n", moves.size());
+		 if (moves.size() != 0){
+		 
+		 int index = 0;
+		 int maxWeight = weights[index];
+		 for (unsigned int i = 0; i < weights.size(); i++){
+			 if(weights[i] > maxWeight){
+				 maxWeight = weights[i];
+				 index = i;
+				 }
+			 
+			 }
+		 b->doMove(moves[index], color);
+		 return moves[index];
+		 
+	   }
+		 
+		 
+		 return nullptr;
+     
+
 }
