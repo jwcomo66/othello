@@ -71,6 +71,80 @@ Player::Player(Side side) {
      */
 }
 
+//finds the miminum score of the opponents moves given a move and board
+int Player::findMin(Board * b1, Move * move){
+	  b1->doMove(move, color);
+	  
+	  //now we have to generate all possible opponent moves
+	  
+	  Side other = (color == BLACK) ? WHITE : BLACK;
+	  
+	  std::vector<int> scores;
+
+		for (int i = 0; i < 8; i++) 
+		{
+			for (int j = 0; j < 8; j++) 
+			   {
+				
+				Move * oppMove = new Move(i, j);
+                
+                if (b1->checkMove(oppMove, other))
+                { 
+					//if the opponent has a valid move,
+					//simulate that move on a copied board and return our score
+				  Board * b2 = b1->copy();
+				  b2->doMove(oppMove, other);
+				  scores.push_back(getScore(b2, color));
+			     }
+			    else
+			     {
+					 delete oppMove;
+				  }
+	  
+			   }
+		 }
+		 
+		 if (scores.size() == 0){
+			 
+			 return getScore(b1,color);
+			 }
+		//now just return the minmum score from scores
+		int min = scores[0];
+		for (unsigned int i = 0; i < scores.size(); i ++)
+		{
+			if (scores[i] < min)
+			{
+				min = scores[i];
+			}
+		}
+		return min;
+	  
+	  
+	  
+	
+	}
+
+//Scores the board for a given side
+
+int Player::getScore(Board* b1, Side side){
+	 Side other = (color == BLACK) ? WHITE : BLACK;
+	 
+	 int score = 0;
+	 for (int row = 0; row < 8; row++){
+		 for (int col = 0; col < 8; col++){
+			 
+			 if(b1->get(side, col, row)){
+				 score += w[row][col];
+				 }
+			 else if(b1->get(other, col, row)){
+				 score -= w[row][col];
+				 }
+			 
+			 }
+		 }
+	return score;
+	}
+
 /*
  * Destructor for the player.
  */
@@ -105,7 +179,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 	   } 
        
        std::vector<Move*> moves;
-       std::vector<int> weights;
+       std::vector<int> min_score;
 
 		for (int i = 0; i < 8; i++) 
 		{
@@ -116,8 +190,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 
                 if (b->checkMove(moneyMove, color))
                 { 
-				  moves.push_back(moneyMove);
-				  weights.push_back(w[i][j]);
+					Board *copy = b->copy();
+					int min = findMin(copy, moneyMove);
+					moves.push_back(moneyMove);
+					min_score.push_back(min);
                   //fprintf(stderr, "Added move \n");
 			     }
 			    else
@@ -133,10 +209,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 		 if (moves.size() != 0){
 		 
 		 int index = 0;
-		 int maxWeight = weights[index];
-		 for (unsigned int i = 0; i < weights.size(); i++){
-			 if(weights[i] > maxWeight){
-				 maxWeight = weights[i];
+		 int max_min = min_score[index];
+		 for (unsigned int i = 0; i < min_score.size(); i++){
+			 if(min_score[i] > max_min){
+				 max_min = min_score[i];
 				 index = i;
 				 }
 			 
