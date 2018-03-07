@@ -80,11 +80,11 @@ bool Board::checkMove(Move *m, Side side) {
 
     int X = m->getX();
     int Y = m->getY();
-    fprintf(stderr, "%d %d\n", X, Y); 
+    //fprintf(stderr, "%d %d\n", X, Y); 
 
     // Make sure the square hasn't already been taken.
     if (occupied(X, Y)) return false;
-    fprintf(stderr, "Unoccupied.\n");
+    //fprintf(stderr, "Unoccupied.\n");
 
     Side other = (side == BLACK) ? WHITE : BLACK;
     for (int dx = -1; dx <= 1; dx++) {
