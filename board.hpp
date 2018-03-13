@@ -3,7 +3,14 @@
 
 #include <bitset>
 #include "common.hpp"
+
+class Move;
+//enum Side;
 using namespace std;
+
+enum Side { 
+    WHITE, BLACK
+};
 
 class Board {
 

@@ -1,19 +1,27 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-enum Side { 
+#include "board.hpp"
+class Board;
+
+/*enum Side { 
     WHITE, BLACK
 };
+*/
 
 class Move {
    
 public:
     int x, y;
+    Board * board;
+    int score;
     Move(int x, int y) {
         this->x = x;
         this->y = y;        
     }
-    ~Move() {}
+    ~Move() {
+		// delete board;
+		}
 
     int getX() { return x; }
     int getY() { return y; }

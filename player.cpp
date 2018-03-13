@@ -11,7 +11,7 @@
  
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = false;
+    testingMinimax = true;
     b = new Board();
     color = side;
     w = new int*[8];
@@ -72,57 +72,165 @@ Player::Player(Side side) {
 }
 
 //finds the miminum score of the opponents moves given a move and board
-int Player::findMin(Board * b1, Move * move){
+int Player::findMin(Board * b1, Move * move, int n){
+	 
+	 
+	//perform our move on board copy
 	  b1->doMove(move, color);
 	  
-	  //now we have to generate all possible opponent moves
+	   Side other = (color == BLACK) ? WHITE : BLACK; 
 	  
-	  Side other = (color == BLACK) ? WHITE : BLACK;
+	 //create vectors to hold ourmoves and oppmoves
+	 std::vector<Move*>ourMoves;
+	 std::vector<Move*> oppMoves;
+	 //oppMoves.reserve(10000);
+	 
+	 oppMoves = getPossibleMoves(b1, other);
+	 
+	
+	 /*std::vector <Board*> boardStatesOurMoves;
+	 std::vector <Board*> boardStatesOppMoves;*/
+	 std::vector<int> scores;
+	 //scores.reserve(500);
+	  for (int i = 1; i <=n; i++){
+		  if(i == n){
+			  
+			  for (unsigned int j = 0; j<oppMoves.size(); j++){
+				 //that is the baord after the opponents move has been made
+				  Board * b2 = oppMoves[j]->board;
+				  
+				  //b2->doMove(oppMoves[j], other);
+				  //fprintf(stderr, "how big? %d\n", scores.size());
+				  scores.push_back(getScore(b2, color));
+			  }
+				  
+				  if (scores.size() == 0){
+					  return getScore(b1,color);
+					  
+			        }
+					//now just return the minimum score from scores
+					int min = scores[0];
+					for (unsigned int p = 0; p < scores.size(); p++)
+					{
+						if (scores[p] < min)
+						{
+							min = scores[p];
+						}
+					}
+					//fprintf(stderr, "Sending score\n");
+					return min;
+					
+				  }
+			  
+			  
+			
+			else{
+				
+				//first clear ourMoves
+				for (unsigned int l = 0; l<ourMoves.size(); l++){
+					delete ourMoves[l];
+					}
+				ourMoves.clear();
+				
+				
+				//use oppMoves to fill ourMoves
+				for(unsigned int j = 0; j < oppMoves.size(); j++){
+					//Move * oppMove = oppMoves[j];
+					
+					std::vector<Move*> ourNextMoves;
+					
+					ourNextMoves = getPossibleMoves(oppMoves[j]->board, color);
+					
+					//now add this shit to our big moves vector
+					
+					for (unsigned int k = 0; k < ourNextMoves.size(); k++){
+						 ourMoves.push_back(ourNextMoves[k]);
+						// fprintf(stderr, "Added move to ours \n");
+						}
+					
+						
+					//our moves vector is filled!!!!!!!!
+		
+					}
+					
+				//clear oppMoves so we can update it
+				for (unsigned int l = 0; l<oppMoves.size(); l++){
+					delete oppMoves[l];
+					
+					}
+				//fprintf(stderr, "OurMOves size %d \n", ourMoves.size());
+				
+				oppMoves.clear();
+				
+					
+				std::vector<Move*> oppNextMoves;
+				//now use the new version of ourMOves to update oppmoves for the next iteration
+				for(unsigned int j = 0; j < ourMoves.size(); j++){
+					
+					oppNextMoves = getPossibleMoves(ourMoves[j]->board, other);
+					
+					//now add this shit to opp moves vector
+					
+		
+					for (unsigned int m = 0; m < oppNextMoves.size(); m++){
+
+						
+						oppMoves.push_back(oppNextMoves[m]);
+						 
+						// fprintf(stderr, "Added move to theirs\n");
+						
+					     
+						}
+						
+					
+						
+				oppNextMoves.clear();
+				}
+				//fprintf(stderr, "OppMOves size %d \n", oppMoves.size());
+		  
+		  
+		  }
 	  
-	  std::vector<int> scores;
+	}
+	return 100;
+}
+	
+//returns a vector of the possible moves (with their boardstates filled) for a given color
+std::vector<Move*> Player::getPossibleMoves(Board * b1, Side side){
+	
+	   std::vector<Move*> moves;
 
 		for (int i = 0; i < 8; i++) 
 		{
 			for (int j = 0; j < 8; j++) 
 			   {
 				
-				Move * oppMove = new Move(i, j);
+				Move * moneyMove = new Move(i, j);
                 
-                if (b1->checkMove(oppMove, other))
+                if (b1->checkMove(moneyMove, side))
                 { 
-					//if the opponent has a valid move,
-					//simulate that move on a copied board and return our score
-				  Board * b2 = b1->copy();
-				  b2->doMove(oppMove, other);
-				  scores.push_back(getScore(b2, color));
+                    Board * b3 = b1->copy();
+                    b3->doMove(moneyMove,side);
+                    moneyMove->board = b3;
+                    
+					moves.push_back(moneyMove);
+					
+				
+					
+                  //fprintf(stderr, "Added move \n");
 			     }
 			    else
 			     {
-					 delete oppMove;
+					 delete moneyMove;
 				  }
 	  
 			   }
-		 }
-		 
-		 if (scores.size() == 0){
-			 
-			 return getScore(b1,color);
-			 }
-		//now just return the minmum score from scores
-		int min = scores[0];
-		for (unsigned int i = 0; i < scores.size(); i ++)
-		{
-			if (scores[i] < min)
-			{
-				min = scores[i];
-			}
-		}
-		return min;
-	  
-	  
-	  
-	
+			   
 	}
+	return moves;
+
+}
+
 
 //Scores the board for a given side
 
@@ -175,9 +283,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
        
        Side other = (color == BLACK) ? WHITE : BLACK; 
        if (opponentsMove != nullptr) {
+		   //fprintf(stderr, "Opponent move: %d %d\n", opponentsMove->getX(), opponentsMove->getY());
 		   b->doMove(opponentsMove, other);
 	   } 
-       
+       int n = 2;
        std::vector<Move*> moves;
        std::vector<int> min_score;
 
@@ -190,8 +299,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 
                 if (b->checkMove(moneyMove, color))
                 { 
-					Board *copy = b->copy();
-					int min = findMin(copy, moneyMove);
+					Board * copy = b->copy();
+					
+					
+					int min = findMin(copy, moneyMove, n);
 					moves.push_back(moneyMove);
 					min_score.push_back(min);
                   //fprintf(stderr, "Added move \n");
@@ -218,12 +329,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 			 
 			 }
 		 b->doMove(moves[index], color);
+		  //fprintf(stderr, "Our move: %d %d\n", moves[index]->getX(), moves[index]->getY());
 		 return moves[index];
 		 
 	   }
-		 
+		  //fprintf(stderr, "Returned nullptr\n");
 		 
 		 return nullptr;
-     
-
 }
